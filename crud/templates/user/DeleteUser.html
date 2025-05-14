@@ -1,0 +1,49 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Delete User page {% endblock 'title' %}
+
+{% block 'content' %}
+{% include "include/Sidebar.html" %}
+{% include "include/ToastMessage.html" %}
+
+<div class="p-2 pt-5 sm:ml-64 mt-16 md:mt-14">
+    <form action="/user/delete/{{ user.user_id}}" method="post">
+        {% csrf_token %}
+            <div class="relative overflow-x-auto rounded-sm shadow-sm">
+                <table class="w-full">
+                    <thead class="text-xs text-left text-white bg-blue-600">
+                        <tr>
+                            <th class="px-4 py-3">Full Name</th>
+                            <th class="px-4 py-3">Gender</th>
+                            <th class="px-4 py-3">Birth Date</th>
+                            <th class="px-4 py-3">Address</th>
+                            <th class="px-4 py-3">Contact Number</th>
+                            <th class="px-4 py-3">Other Phone Number</th>
+                            <th class="px-4 py-3">Email</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-xs  text-black">
+                        <tr class = "hover:bg-gray-100 border-b border-gray-300"> 
+                            <td class = " px-4 py-3">{{ user.full_name}} </td>
+                            <td class = " px-4 py-3">{{ user.gender.gender}}</td>
+                            <td class = " px-4 py-3">{{ user.birth_date}}</td>
+                            <td class = " px-4 py-3">{{ user.address}}</td>
+                            <td class = " px-4 py-3">{{ user.contact_number}}</td>
+                            <td class = " px-4 py-3">{{ user.other_phone_number}}</td>
+                            <td class = " px-4 py-3">{{ user.email}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <div class="flex justify-center pt-2">
+            <a href="/user/list" class=" bg-white text-sm font-medium text-black px-3 py-2.5 rounded-sm shadow-sm mr-1 cursor-pointer hover:bg-gray-100">Cancel</a>
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-sm font-medium text-white px-3 py-2.5 rounded-sm shadow-sm cursor-pointer">Delete User</button>
+        </div>
+
+
+
+    </form>
+</div>
+
+{% endblock 'content' %}
+

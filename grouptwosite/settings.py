@@ -87,6 +87,8 @@ DATABASES = {
         'PASSWORD': '',
     }
 }
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/user/list'
 
 
 # Password validation

@@ -1,0 +1,99 @@
+{% extends "layout/base.html" %}
+
+{% block 'title' %} Add User {% endblock 'title' %}
+
+{% block 'content' %}
+{% include "include/Sidebar.html" %}
+{% include "include/ToastMessage.html" %}
+
+<div class="p-2 sm:ml-64 mt-16 md:mt-14">
+    <div class="mx-auto">
+        <form action="/user/add" method="post">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- First Column -->
+                <div class="col-span-1">
+                    <div class="mb-4">
+                        <label for="full_name" class="block text-sm font-medium mb-2">Full Name</label>
+                        <input type="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="full_name" id="full_name" required />
+                    </div>
+                    <div class="mb-4">
+                        <label for="gender" class="block text-sm font-medium mb-2">Gender</label>
+                        <select class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="gender" id="gender" required> 
+                            {% for gender in genders %}
+                                <option value="{{ gender.gender_id }}">{{ gender.gender }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label for="birt_hdate" class="block text-sm font-medium mb-2">Birthdate</label>
+                        <input type="date" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="birth_date" id="birth_date" required />
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" class="block text-sm font-medium mb-2">Email (Optional)</label>
+                        <input type="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="email" id="email" />
+                    </div>
+                    <div class="mb-4">
+                        <label for="address" class="block text-sm font-medium mb-2">Address</label>
+                        <input type ="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="address" id="address" required />
+                    </div>
+                </div>
+
+                <!-- Second Column -->
+                <div class="col-span-1">
+                    <div class="mb-4">
+                        <label for="contact_number" class="block text-sm font-medium mb-2">Contact Number</label>
+                        <input type="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="contact_number" id="contact_number" required />
+                    </div>
+                    <div class="mb-4">
+                        <label for="other_phone_number" class="block text-sm font-medium mb-2">Other Phone Number (Optional) </label>
+                        <input type="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="other_phone_number" id="other_phone_number" />
+                    </div>
+                    <div class="mb-4">
+                        <label for="username" class="block text-sm font-medium mb-2">Username</label>
+                        <input type="text" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="username" id="username" required />
+                    </div>
+                    <div class="mb-4">
+                        <label for="password" class="block text-sm font-medium mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="password" id="password" required />
+                            <button type="button" onclick="togglePasswordVisibility('password')" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="confirm_password" class="block text-sm font-medium mb-2">Confirm Password</label>
+                        <div class="relative">
+                            <input type="password" class="bg-white mb-2 px-3 py-2.5 border border-gray-300 text-black block text-sm rounded-sm w-full focus:outline-none focus:ring-blue-600 focus:border-blue-600" name="confirm_password" id="confirm_password" required />
+                            <button type="button" onclick="togglePasswordVisibility('confirm_password')" class="absolute right-3 top-3 text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center  mt-4">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-sm font-medium text-white px-3 py-2.5 rounded-sm shadow-sm cursor-pointer">Save User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function togglePasswordVisibility(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = field.nextElementSibling.querySelector('i');
+        if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = "password";
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+
+{% endblock 'content' %}

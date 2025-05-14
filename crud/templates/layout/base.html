@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static  'css/output.css' %}">    
+    <link rel="stylesheet" href="{% static  'css/output.css' %}">  
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">  
     <title>{% block 'title' %}{% endblock 'title' %}</title>
 </head>
 <body class="bg-gray-200">
-
-    {% include "include/Sidebar.html" %}
-    
+  
     {% block 'content' %}{% endblock 'content' %}
     <script src="{% static 'js/auto_hide_toast.js' %}"></script>
 </body>

@@ -21,6 +21,7 @@ class Users(models.Model):
     birth_date = models.DateField(blank=False) # birth_date = DATE NOT NULL
     address = models.CharField(max_length=255, blank=False) # address = VARCHAR(255) NOT NULL
     contact_number = models.CharField(max_length=55, blank=False) # contact_number = VARCHAR(55) NOT NULL 
+    other_phone_number = models.CharField(max_length=55, blank=True) # other_phone_number = VARCHAR(55) DEFAULT NULL
     email = models.EmailField(max_length=55, blank=True) # email = VARCHAR(55) DEFAULT NULL
     username = models.CharField(max_length=55, blank=False, unique=True) # username = VARCHAR(55) NOT NULL // UNIQUE
     password = models.CharField(max_length=255, blank=False) # password = VARCHAR(255) NOT NULL

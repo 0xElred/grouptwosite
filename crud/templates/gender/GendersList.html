@@ -3,9 +3,21 @@
 {% block 'title' %} Genders List {% endblock 'title' %}
 
 {% block 'content' %}
-{% include "include/Sidebar.html" %}
+{% include "include/Sidebar.html" %} 
 {% include "include/ToastMessage.html" %}
 <div class="p-2 sm:ml-64 mt-16 md:mt-14">
+    <form method="get" action="" class="mb-4 flex items-center gap-2">
+        <input 
+            type="text" 
+            name="search" 
+            value="{{ request.GET.search }}" 
+            placeholder="Search genders..." 
+            class="border border-gray-300 rounded px-4 py-2 flex-grow"
+        />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Search
+        </button>
+    </form> 
     <div class="relative overflow-x-auto rounded-sm shadow-sm">
         <table class="w-full">
             <thead class="text-xs text-left text-white bg-blue-600">
@@ -15,23 +27,45 @@
                     <th class="px-6 py-3">Action</th>
                 </tr>
             </thead>
-            <tbody class="text-xs  text-black">
-                 {% for gender in  genders %} 
-                <tr class = "hover:bg-gray-100 border-b border-gray-300"> 
-                    <td class = " px-7 py-2">{{ gender.gender_id}} </td>
-                    <td class = " px-7 py-2">{{ gender.gender}}</td>
-                    <td class = " px-7 py-2 ">
+            <tbody class="text-xs text-black">
+                {% for gender in genders %}
+                <tr class="hover:bg-gray-100 border-b border-gray-300">
+                    <td class="px-7 py-2">{{ gender.gender_id }}</td>
+                    <td class="px-7 py-2">{{ gender.gender }}</td>
+                    <td class="px-7 py-2">
                         <div class="inline-flex shadow-sm">
-                            <a href="/gender/edit/{{ gender.gender_id}}" class="bg-green-600 px-3 py-2.5 font-medium text-sm text-white rounded-s-sm hover:bg-green-700 hover:outline-none">Edit</a>
-                            <a href="/gender/delete/{{ gender.gender_id}}" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
+                            <a href="/gender/edit/{{ gender.gender_id }}" class="bg-green-600 px-3 py-2.5 font-medium text-sm text-white rounded-s-sm hover:bg-green-700 hover:outline-none">Edit</a>
+                            <a href="/gender/delete/{{ gender.gender_id }}" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
                         </div>
-                         </td>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center py-4">No genders found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    <!-- Pagination -->
+    <div class="flex justify-between items-center mt-4">
+        {% if genders.has_previous %}
+        <a href="?page={{ genders.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+       class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700 {% if not genders.has_previous %}pointer-events-none opacity-50{% endif %}">
+       Previous
+    </a>
+        {% else %}
+        <span class="bg-gray-300 px-4 py-2 text-gray-500 rounded">Previous</span>
+        {% endif %}
+    
+        <span>Page {{ genders.number }} of {{ genders.paginator.num_pages }}</span>
+    
+        {% if genders.has_next %}
+        <a href="?page={{ genders.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700">Next</a>
+        {% else %}
+        <span class="bg-gray-300 px-4 py-2 text-gray-500 rounded">Next</span>
+        {% endif %}
+    </div>
 </div>
-
 
 {% endblock 'content' %}
