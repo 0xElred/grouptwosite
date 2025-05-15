@@ -168,6 +168,7 @@ def user_list(request):
             Q(full_name__icontains=search_query) |
             Q(email__icontains=search_query) |
             Q(contact_number__icontains=search_query) |
+            Q(gender__gender__icontains=search_query) |
             Q(address__icontains=search_query)).order_by('user_id')
         # Set up pagination: 10 users per page
         paginator = Paginator(user_queryset, 10)
