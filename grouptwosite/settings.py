@@ -91,6 +91,9 @@ DATABASES = {
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/user/list'
 
+SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when browser closes
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

@@ -1,16 +1,12 @@
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import check_password
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib import messages
 from .models import Gender, Users
-from django.contrib.auth.hashers import check_password, make_password 
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import IntegrityError
-from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
-from django.http import JsonResponse
-from django.core.paginator import Paginator
+from .utils import login_required
+
 
 def create_account(request):
     try:
@@ -48,18 +44,15 @@ def create_account(request):
                 password=hashed_password,
             )
             messages.success(request, 'Account created successfully.')
-            return redirect('/login')  # Redirect to the Users List page
+            return redirect('/login')  # Redirect to the login page
 
         # Render the form for GET requests
         genders = Gender.objects.all()
         return render(request, 'login/CreateAccount.html', {'genders': genders})
-
     except Exception as e:
         return HttpResponse(f"An error occurred while creating the account: {e}")
 
-
 def user_login(request):
-
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -67,13 +60,13 @@ def user_login(request):
         try:
             user = Users.objects.get(username=username)
             if check_password(password, user.password):
+                # Set session data
                 request.session['user_id'] = user.user_id
                 request.session['username'] = user.username
                 messages.success(request, 'You have successfully logged in.')
 
-                # Debugging the next parameter
+                # Redirect to the next page or default to /user/list
                 next_url = request.GET.get('next', '/user/list')
-                print(f"Redirecting to: {next_url}")  # Debugging line
                 return redirect(next_url)
             else:
                 messages.error(request, 'Invalid username or password.')
@@ -82,7 +75,7 @@ def user_login(request):
 
     return render(request, 'login/Login.html')
 
-
+@login_required
 def gender_list(request):
 
     search_query = request.GET.get('search', '')
@@ -101,8 +94,9 @@ def gender_list(request):
     }) 
 
 
+@login_required
 def add_gender(request):
-    
+
     try:
         if request.method == 'POST':
              gender = request.POST.get('gender')
@@ -112,9 +106,10 @@ def add_gender(request):
         else:
             return render(request, 'gender/AddGender.html')       
     except Exception as e:
-            return HttpResponse(f"An error occurred while adding a gender: {e}")     
+            return HttpResponse(f"An error occurred while adding a gender: {e}")   
 
 
+@login_required
 def edit_gender(request, genderId):
     try:
         
@@ -139,7 +134,7 @@ def edit_gender(request, genderId):
     except Exception as e:
         return HttpResponse(f"An error occurred while editing gender: {e}")
 
-
+@login_required   
 def delete_gender(request, genderId):
     try:
         if request.method == 'POST':
@@ -155,28 +150,25 @@ def delete_gender(request, genderId):
             return render(request, 'gender/DeleteGender.html', data)
     except Exception as e:
         return HttpResponse(f"An error occurred while deleting gender: {e}")
+    
 
-
-
+@login_required
 def user_list(request):
-    q = request.GET.get('q', '')  # Get the search query
-    users = Users.objects.all()  # Fetch all users initially
+    q = request.GET.get('q', '')
+    users = Users.objects.all()
 
-    if q:  # If a search query is provided, filter the users
+    if q:
         users = users.filter(full_name__icontains=q)
 
-    # Add pagination
-    paginator = Paginator(users, 10)  # Show 10 users per page
-    page_number = request.GET.get('page')  # Get the current page number from the request
-    users_page = paginator.get_page(page_number)  # Get the users for the current page
+    paginator = Paginator(users, 10)
+    page_number = request.GET.get('page')
+    users_page = paginator.get_page(page_number)
 
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # Check if it's an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return render(request, 'partials/UserListUpdate.html', {'users': users_page})
 
-    # For non-AJAX requests, render the full page
     return render(request, 'user/UsersList.html', {'users': users_page})
-
-
+@login_required
 def add_user(request):
     try:
         if request.method == 'POST':
@@ -220,7 +212,7 @@ def add_user(request):
     except Exception as e:
         return HttpResponse(f"An error occurred while adding a user: {e}")
 
-
+@login_required
 def edit_user(request, userId):
     try:
         # Retrieve the user by ID
@@ -286,7 +278,7 @@ def edit_user(request, userId):
         # Handle unexpected errors
         messages.error(request, f"An unexpected error occurred: {e}")
         return redirect('/user/list')
-
+@login_required
 def delete_user(request, userId):
     try:
         user = Users.objects.get(pk=userId)
@@ -302,3 +294,8 @@ def delete_user(request, userId):
         return render(request, 'user/DeleteUser.html', data)
     except Exception as e:
         return HttpResponse(f"An error occurred while deleting the user: {e}")
+@login_required
+def user_logout(request):
+    request.session.flush()  # Clear all session data
+    messages.success(request, 'You have successfully logged out.')
+    return redirect('/login')  # Redirect to the login page
