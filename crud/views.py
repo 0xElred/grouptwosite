@@ -168,6 +168,7 @@ def user_list(request):
         return render(request, 'partials/UserListUpdate.html', {'users': users_page})
 
     return render(request, 'user/UsersList.html', {'users': users_page})
+
 @login_required
 def add_user(request):
     try:
@@ -278,6 +279,7 @@ def edit_user(request, userId):
         # Handle unexpected errors
         messages.error(request, f"An unexpected error occurred: {e}")
         return redirect('/user/list')
+
 @login_required
 def delete_user(request, userId):
     try:
@@ -294,6 +296,7 @@ def delete_user(request, userId):
         return render(request, 'user/DeleteUser.html', data)
     except Exception as e:
         return HttpResponse(f"An error occurred while deleting the user: {e}")
+
 @login_required
 def user_logout(request):
     request.session.flush()  # Clear all session data

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-tsz9%q(!q_24ysr9f^8ng)26lo%1!$ji8su5nbnpj09)1pi6ja
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.0.19', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -91,7 +91,7 @@ DATABASES = {
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/user/list'
 
-SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+SESSION_COOKIE_SECURE = False  # Only send session cookie over HTTPS
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Session expires when browser closes
 
