@@ -6,19 +6,22 @@
 {% include "include/Sidebar.html" %}
 {% include "include/ToastMessage.html" %}
 <div class="p-2 sm:ml-64 mt-16 md:mt-14">
-        <!-- Search Form -->
-        <form method="get" action="" class="mb-4 flex items-center gap-2">
-            <input 
-                type="text" 
-                name="search" 
-                value="{{ search_query }}" 
-                placeholder="Search users..." 
-                class="border border-gray-300 rounded px-4 py-2 flex-grow"
-            />
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Search
-            </button>
-        </form>   
+    <!-- Search Form -->
+    <form method="get" action="" class="mb-4 flex items-center gap-2">
+        <input 
+        type="text" 
+        id="search-bar"  
+        name="search" 
+        value="{{ search_query }}" 
+        placeholder="Search users..." 
+        class="border border-gray-300 rounded px-4 py-2 flex-grow"
+        />
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Search
+        </button>
+    </form>   
+
+    <!-- User Table -->
     <div class="relative overflow-x-auto rounded-sm shadow-sm">
         <table class="w-full">
             <thead class="text-xs text-left text-white bg-blue-600">
@@ -33,7 +36,7 @@
                     <th class="px-4 py-3">Action</th>
                 </tr>
             </thead>
-            <tbody class="text-xs text-black">
+            <tbody id="user-table-body">
                 {% for user in users %}
                 <tr class="hover:bg-gray-100 border-b border-gray-300">
                     <td class="px-4 py-3">{{ user.full_name }}</td>
@@ -55,10 +58,11 @@
         </table>
     </div>
 
-    <!-- Pagination -->
+    <!-- Pagination Controls -->
     <div class="flex justify-between items-center mt-4">
         {% if users.has_previous %}
-        <a href="?page={{ users.previous_page_number }}" class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700">Previous</a>
+        <a href="?page={{ users.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+           class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700">Previous</a>
         {% else %}
         <span class="bg-gray-300 px-4 py-2 text-gray-500 rounded">Previous</span>
         {% endif %}
@@ -66,10 +70,30 @@
         <span>Page {{ users.number }} of {{ users.paginator.num_pages }}</span>
 
         {% if users.has_next %}
-        <a href="?page={{ users.next_page_number }}" class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700">Next</a>
+        <a href="?page={{ users.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+           class="bg-blue-600 px-4 py-2 text-white rounded hover:bg-blue-700">Next</a>
         {% else %}
         <span class="bg-gray-300 px-4 py-2 text-gray-500 rounded">Next</span>
         {% endif %}
     </div>
 </div>
+
+<!-- AJAX Script -->
+<script>
+    document.getElementById('search-bar').addEventListener('input', function() {
+        const query = this.value;
+        fetch(`/user/list?q=${encodeURIComponent(query)}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('user-table-body').innerHTML = data;
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+        });
+    });
+</script>
 {% endblock 'content' %}

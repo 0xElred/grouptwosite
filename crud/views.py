@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 def create_account(request):
     try:
@@ -156,39 +157,24 @@ def delete_gender(request, genderId):
         return HttpResponse(f"An error occurred while deleting gender: {e}")
 
 
+
 def user_list(request):
-    try:
-        # Retrieve all users and order them by user_id
-        user_queryset = Users.objects.select_related('gender').order_by('user_id')
+    q = request.GET.get('q', '')  # Get the search query
+    users = Users.objects.all()  # Fetch all users initially
 
-        search_query = request.GET.get('search', '')    # Get the search query from the request
+    if q:  # If a search query is provided, filter the users
+        users = users.filter(full_name__icontains=q)
 
-        # Filter users based on the search query
-        user_queryset = Users.objects.select_related('gender').filter(
-            Q(full_name__icontains=search_query) |
-            Q(email__icontains=search_query) |
-            Q(contact_number__icontains=search_query) |
-            Q(address__icontains=search_query)).order_by('user_id')
-        # Set up pagination: 10 users per page
-        paginator = Paginator(user_queryset, 10)
-        page = request.GET.get('page')  # Get the page number from the request
-        try:
-            users = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver the first page
-            users = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range, deliver the last page of results
-            users = paginator.page(paginator.num_pages)
+    # Add pagination
+    paginator = Paginator(users, 10)  # Show 10 users per page
+    page_number = request.GET.get('page')  # Get the current page number from the request
+    users_page = paginator.get_page(page_number)  # Get the users for the current page
 
-        # Pass the paginated users to the template
-        data = {
-            'users': users
-        }
-        return render(request, 'user/UsersList.html', data)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # Check if it's an AJAX request
+        return render(request, 'partials/UserListUpdate.html', {'users': users_page})
 
-    except Exception as e:
-        return HttpResponse(f"An error occurred while retrieving the User list: {e}")  
+    # For non-AJAX requests, render the full page
+    return render(request, 'user/UsersList.html', {'users': users_page})
 
 
 def add_user(request):

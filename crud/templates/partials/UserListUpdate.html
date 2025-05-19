@@ -1,0 +1,47 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Attach an event listener to the search input field
+        $('#search-bar').on('input', function () {
+            let query = $(this).val(); // Get the value of the search input
+
+            // Make an AJAX GET request to the server
+            $.ajax({
+                url: '/user/list', // URL of the user_list view
+                type: 'GET',
+                data: { q: query }, // Pass the search query as a parameter
+                success: function (response) {
+                    // Update the table content with the response
+                    $('#user-table-body').html($(response).find('#user-table-body').html());
+                },
+                error: function () {
+                    alert('An error occurred while fetching the data.');
+                }
+            });
+        });
+    });
+</script>
+
+
+<table>
+    <tbody id="user-table-body">
+        {% for user in users %}
+        <tr class="hover:bg-gray-100 border-b border-gray-300">
+            <td class="px-4 py-3">{{ user.full_name }}</td>
+            <td class="px-4 py-3">{{ user.gender.gender }}</td>
+            <td class="px-4 py-3">{{ user.birth_date }}</td>
+            <td class="px-4 py-3">{{ user.address }}</td>
+            <td class="px-4 py-3">{{ user.contact_number }}</td>
+            <td class="px-4 py-3">{{ user.other_phone_number }}</td>
+            <td class="px-4 py-3">{{ user.email }}</td>
+            <td class="px-4 py-3">
+                <div class="inline-flex shadow-sm">
+                    <a href="/user/edit/{{ user.user_id }}" class="bg-green-600 px-3 py-2 font-medium text-sm text-white rounded-s-sm hover:bg-green-700 hover:outline-none">Edit</a>
+                    <a href="/user/delete/{{ user.user_id }}" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

@@ -1,0 +1,86 @@
+{% extends "layout/base.html" %}
+
+
+{% block 'content' %}
+<!-- Search Form -->
+ <div class="p-2 sm:ml-64 mt-16 md:mt-14 mb-0">
+     <form method="get" action="" class=" mb-4 flex items-center gap-2">
+         <input 
+            id ="search"
+             type="text" 
+             name="search" 
+             value="{{ search_query }}" 
+             placeholder="Search users..." 
+             class="border border-gray-300 rounded px-4 py-2 flex-grow"
+         />
+         <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+             Search
+         </button>
+     </form>   
+    
+ </div>
+{% endblock 'content' %}
+
+{% block 'script' %}
+<script>
+    const input = document.getElementById('search');
+    const userTable = document.getElementById('user-table');
+
+    // Add event listener for live search
+    input.addEventListener('keyup', () => {
+        const query = input.value.trim();
+        console.log(`Search query: ${query}`); // Debug log
+    
+        if (query === "") {
+            userTable.innerHTML = ""; // Clear the table if input is empty
+            return;
+        }
+    
+        // Send AJAX request to the server
+        fetch(`/user/list/?search=${query}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Identify as an AJAX request
+            }
+        })
+        .then(response => {
+            console.log(response); // Debug log
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data); // Debug log
+            userTable.innerHTML = ""; // Clear the table
+    
+            if (data.users.length > 0) {
+                data.users.forEach(user => {
+                    userTable.innerHTML += `
+                        <tr class="hover:bg-gray-100 border-b border-gray-300">
+                            <td class="px-4 py-3">${user.full_name}</td>
+                            <td class="px-4 py-3">${user.gender__gender}</td>
+                            <td class="px-4 py-3">${user.birth_date}</td>
+                            <td class="px-4 py-3">${user.address}</td>
+                            <td class="px-4 py-3">${user.contact_number}</td>
+                            <td class="px-4 py-3">${user.other_phone_number || ''}</td>
+                            <td class="px-4 py-3">${user.email}</td>
+                            <td class="px-4 py-3">
+                                <div class="inline-flex shadow-sm">
+                                    <a href="/user/edit/${user.user_id}" class="bg-green-600 px-3 py-2 font-medium text-sm text-white rounded-s-sm hover:bg-green-700 hover:outline-none">Edit</a>
+                                    <a href="/user/delete/${user.user_id}" class="bg-red-600 px-3 py-2.5 font-medium text-sm text-white rounded-e-sm hover:bg-red-700 hover:outline-none">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                userTable.innerHTML = "<tr><td colspan='8' class='text-center text-gray-500'>No data found</td></tr>";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            userTable.innerHTML = "<tr><td colspan='8' class='text-center text-red-500'>An error occurred</td></tr>";
+        });
+    });
+</script>
+{% endblock 'script' %}

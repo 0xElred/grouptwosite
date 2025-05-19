@@ -1,0 +1,12 @@
+<!-- filepath: c:\xampp\htdocs\grouptwosite\crud\templates\partials\user_table_rows.html -->
+{% for user in users %}
+<tr>
+    <td>{{ user.full_name }}</td>
+    <td>{{ user.gender.gender }}</td>
+    <td>{{ user.birth_date }}</td>
+    <td>{{ user.address }}</td>
+    <td>{{ user.contact_number }}</td>
+    <td>{{ user.other_phone_number }}</td>
+    <td>{{ user.email }}</td>
+</tr>
+{% endfor %}
