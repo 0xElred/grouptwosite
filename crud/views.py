@@ -60,12 +60,12 @@ def user_login(request):
         try:
             user = Users.objects.get(username=username)
             if check_password(password, user.password):
-                # Set session data
+                
                 request.session['user_id'] = user.user_id
                 request.session['username'] = user.username
                 messages.success(request, 'You have successfully logged in.')
 
-                # Redirect to the next page or default to /user/list
+                
                 next_url = request.GET.get('next', '/user/list')
                 return redirect(next_url)
             else:
@@ -173,54 +173,75 @@ def user_list(request):
 def add_user(request):
     try:
         if request.method == 'POST':
-            fullName = request.POST.get('full_name')
-            gender = request.POST.get('gender')
-            birth_date = request.POST.get('birth_date')
-            email = request.POST.get('email')
-            address = request.POST.get('address')
-            contact_number = request.POST.get('contact_number')
-            other_phone_number = request.POST.get('other_phone_number')
-            username = request.POST.get('username')
+            # Get all form data
+            form_data = {
+                'full_name': request.POST.get('full_name'),
+                'gender': request.POST.get('gender'),
+                'birth_date': request.POST.get('birth_date'),
+                'email': request.POST.get('email'),
+                'address': request.POST.get('address'),
+                'contact_number': request.POST.get('contact_number'),
+                'other_phone_number': request.POST.get('other_phone_number'),
+                'username': request.POST.get('username'),
+            }
+            
             password = request.POST.get('password')
             confirm_password = request.POST.get('confirm_password')
 
             if password != confirm_password:
                 messages.error(request, 'Password and confirm password do not match')
-                return redirect('/user/add')
+                # Return with form data and genders
+                gender = Gender.objects.all()
+                return render(request, 'user/AddUser.html', {
+                    'genders': gender,
+                    'form_data': form_data
+                })
 
-            Users.objects.create(
-                full_name= fullName,
-                gender= Gender.objects.get(pk=gender),
-                birth_date=birth_date,
-                email=email,
-                address=address,
-                contact_number=contact_number,
-                other_phone_number=other_phone_number,
-                username=username,
-                password= make_password(password),
+            try:
+                Users.objects.create(
+                    full_name=form_data['full_name'],
+                    gender=Gender.objects.get(pk=form_data['gender']),
+                    birth_date=form_data['birth_date'],
+                    email=form_data['email'],
+                    address=form_data['address'],
+                    contact_number=form_data['contact_number'],
+                    other_phone_number=form_data['other_phone_number'],
+                    username=form_data['username'],
+                    password=make_password(password),
+                )
+                messages.success(request, 'User added successfully')
+                return redirect('/user/list')
                 
-            ).save()  
-            messages.success(request, 'User added successfully')
-            return redirect('/user/list')      
+            except IntegrityError as e:
+                if 'username' in str(e):
+                    messages.error(request, f'Username "{form_data["username"]}" already exists. Please choose a different username.')
+                else:
+                    messages.error(request, 'An error occurred while adding the user.')
+                
+                # Return with form data and genders
+                gender = Gender.objects.all()
+                return render(request, 'user/AddUser.html', {
+                    'genders': gender,
+                    'form_data': form_data
+                })
+
         else:
             gender = Gender.objects.all()
-            data = {
-                'genders': gender 
-            }
-            return render(request, 'user/AddUser.html', data)
-
+            return render(request, 'user/AddUser.html', {'genders': gender})
 
     except Exception as e:
-        return HttpResponse(f"An error occurred while adding a user: {e}")
-
+        messages.error(request, f'An unexpected error occurred: {str(e)}')
+        gender = Gender.objects.all()
+        return render(request, 'user/AddUser.html', {'genders': gender})
+    
 @login_required
 def edit_user(request, userId):
     try:
-        # Retrieve the user by ID
+        
         user = Users.objects.get(pk=userId)
 
         if request.method == 'POST':
-            # Retrieve form data
+            
             fullName = request.POST.get('full_name')
             gender = request.POST.get('gender')
             birth_date = request.POST.get('birth_date')
@@ -230,7 +251,7 @@ def edit_user(request, userId):
             other_phone_number = request.POST.get('other_phone_number')
             username = request.POST.get('username')
 
-            # Update user fields
+            
             user.full_name = fullName
             user.gender = Gender.objects.get(pk=gender)
             user.birth_date = birth_date
@@ -241,28 +262,28 @@ def edit_user(request, userId):
             user.username = username
 
             try:
-                # Save the updated user
+                
                 user.save()
                 messages.success(request, 'User updated successfully')
                 return redirect('/user/list')
             except IntegrityError as e:
-                # Handle duplicate username error
+                
                 if 'Duplicate entry' in str(e):
                     messages.error(request, f"An error occurred: Username '{username}' already exists.")
                 else:
                     messages.error(request, "An unexpected error occurred while updating the user.")
 
-                # Re-render the form with the current data
+                
                 genders = Gender.objects.all()
                 data = {
                     'user': user,
                     'genders': genders,
-                    'form_data': request.POST  # Pass the submitted form data back to the template
+                    'form_data': request.POST  
                 }
                 return render(request, 'user/EditUser.html', data)
 
         else:
-            # Render the form for GET requests
+            
             genders = Gender.objects.all()
             data = {
                 'user': user,
@@ -271,12 +292,12 @@ def edit_user(request, userId):
             return render(request, 'user/EditUser.html', data)
 
     except Users.DoesNotExist:
-        # Handle case where user does not exist
+        
         messages.error(request, "The user does not exist.")
         return redirect('/user/list')
 
     except Exception as e:
-        # Handle unexpected errors
+        
         messages.error(request, f"An unexpected error occurred: {e}")
         return redirect('/user/list')
 
@@ -299,6 +320,6 @@ def delete_user(request, userId):
 
 @login_required
 def user_logout(request):
-    request.session.flush()  # Clear all session data
+    request.session.flush()  
     messages.success(request, 'You have successfully logged out.')
-    return redirect('/login')  # Redirect to the login page
+    return redirect('/login')  
